@@ -1,0 +1,15 @@
+{
+  "short_name": "Makine Bul",
+  "name": "Parça Numarası ile Makine Bulucu",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+  ],
+  "start_url": "index.html",
+  "display": "standalone",
+  "theme_color": "#007AFF",
+  "background_color": "#ffffff"
+}

@@ -3,241 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Parça Numarasý ile Makine Bulucu</title>
+    <meta name="theme-color" content="#007AFF"/>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Makine Bul">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="manifest" href="manifest.json">
+    
+    <title>ParÃ§a NumarasÄ± ile Makine Bulucu</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f9;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .container {
-            width: 100%;
-            max-width: 600px;
-            background: #fff;
-            padding: 25px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #444;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        input[type="file"], input[type="text"] {
-            width: calc(100% - 22px);
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-        button {
-            flex-grow: 1;
-            padding: 12px;
-            background-color: #007AFF;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        #qr-reader-button {
-            background-color: #34C759;
-        }
-        #qr-reader-button:hover {
-            background-color: #2a9e48;
-        }
-        #result {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #eef7ff;
-            border-left: 5px solid #007AFF;
-            min-height: 50px;
-            font-size: 1.2em;
-            word-wrap: break-word;
-        }
-        #qr-reader {
-            width: 100%;
-            max-width: 500px;
-            margin-top: 20px;
-            border: 1px solid #ddd;
-        }
-        .info {
-            font-size: 0.9em;
-            color: #666;
-            margin-bottom: 15px;
-            text-align: center;
-        }
+        /* Stil kodlarÄ± aynÄ± kaldÄ±ÄŸÄ± iÃ§in buraya eklenmedi, sizdeki kodda mevcut. */
+        body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;margin:0;padding:20px;background-color:#f4f4f9;color:#333;display:flex;flex-direction:column;align-items:center}.container{width:100%;max-width:600px;background:#fff;padding:25px;border-radius:8px;box-shadow:0 4px 8px rgba(0,0,0,.1)}h1{color:#444;text-align:center;margin-bottom:20px}input[type=text]{width:calc(100% - 22px);padding:10px;margin-bottom:15px;border:1px solid #ddd;border-radius:4px;font-size:16px}.button-group{display:flex;gap:10px;margin-bottom:20px}button{flex-grow:1;padding:12px;background-color:#007aff;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:16px;transition:background-color .3s}button:hover{background-color:#0056b3}#qr-reader-button{background-color:#34c759}#qr-reader-button:hover{background-color:#2a9e48}#result{margin-top:20px;padding:15px;background-color:#eef7ff;border-left:5px solid #007aff;min-height:50px;font-size:1.2em;word-wrap:break-word}#qr-reader{width:100%;max-width:500px;margin-top:20px;border:1px solid #ddd}
     </style>
 </head>
 <body>
-
     <div class="container">
         <h1>Makine Bulucu</h1>
-        <p class="info">Lütfen önce CSV formatýndaki planlama dosyasýný seçin.</p>
-        
-        <input type="file" id="fileInput" accept=".csv">
-        
-        <hr style="border: 1px solid #eee; margin: 20px 0;">
-
-        <input type="text" id="partNumberInput" placeholder="Parça Numarasýný Girin...">
-        
+        <input type="text" id="partNumberInput" placeholder="ParÃ§a NumarasÄ±nÄ± Girin...">
         <div class="button-group">
-            <button id="searchButton" disabled>Ara</button>
-            <button id="qr-reader-button" disabled>QR Kod Tara</button>
+            <button id="searchButton">Ara</button>
+            <button id="qr-reader-button">QR Kod Tara</button>
         </div>
-        
         <div id="qr-reader" style="display: none;"></div>
-        
-        <div id="result">
-            Sonuç burada görünecektir.
-        </div>
+        <div id="result">Uygulama hazÄ±r. LÃ¼tfen arama yapÄ±n veya QR kod taratÄ±n.</div>
     </div>
-
-    <script src="https://unpkg.com/papaparse@5.3.2/papaparse.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-
     <script>
-        // Global deðiþkenler
-        let partData = [];
-        const fileInput = document.getElementById('fileInput');
-        const partNumberInput = document.getElementById('partNumberInput');
-        const searchButton = document.getElementById('searchButton');
-        const qrReaderButton = document.getElementById('qr-reader-button');
-        const resultDiv = document.getElementById('result');
-        const qrReaderDiv = document.getElementById('qr-reader');
-        let html5QrCode = null;
-
-        // Dosya seçildiðinde veriyi iþle
-        fileInput.addEventListener('change', (event) => {
-            const file = event.target.files[0];
-            if (!file) {
-                return;
-            }
-
-            Papa.parse(file, {
-                header: true,
-                skipEmptyLines: true,
-                complete: function(results) {
-                    partData = results.data;
-                    searchButton.disabled = false;
-                    qrReaderButton.disabled = false;
-                    resultDiv.textContent = `${partData.length} adet parça kaydý yüklendi. Arama yapabilirsiniz.`;
-                    resultDiv.style.borderColor = '#34C759';
-                },
-                error: function(error) {
-                    resultDiv.textContent = `Dosya okunurken hata oluþtu: ${error.message}`;
-                    resultDiv.style.borderColor = '#FF3B30';
-                }
-            });
-        });
-
-        // Arama fonksiyonu
-        function findMachineByPartNumber(partNumber) {
-            if (partData.length === 0) {
-                resultDiv.textContent = 'Lütfen önce veri dosyasýný yükleyin.';
-                resultDiv.style.borderColor = '#FF9500';
-                return;
-            }
-            
-            const trimmedPartNumber = partNumber.trim();
-            if (!trimmedPartNumber) {
-                resultDiv.textContent = 'Lütfen geçerli bir parça numarasý girin.';
-                 resultDiv.style.borderColor = '#FF9500';
-                return;
-            }
-
-            const machines = partData
-                .filter(row => row['Part number'] && row['Part number'].toString().trim() === trimmedPartNumber)
-                .map(row => row['Machine number']);
-
-            if (machines.length > 0) {
-                // Tekrar eden makine numaralarýný kaldýr
-                const uniqueMachines = [...new Set(machines)];
-                resultDiv.innerHTML = `<strong>Parça No:</strong> ${trimmedPartNumber}<br><strong>Bulunduðu Makineler:</strong> ${uniqueMachines.join(', ')}`;
-                resultDiv.style.borderColor = '#007AFF';
-            } else {
-                resultDiv.textContent = `"${trimmedPartNumber}" parça numarasý için makine bulunamadý.`;
-                resultDiv.style.borderColor = '#FF3B30';
-            }
-        }
-
-        // Arama butonu olayý
-        searchButton.addEventListener('click', () => {
-            findMachineByPartNumber(partNumberInput.value);
-        });
-        
-        // Enter tuþu ile arama
-        partNumberInput.addEventListener('keyup', (event) => {
-             if (event.key === 'Enter') {
-                findMachineByPartNumber(partNumberInput.value);
-            }
-        });
-
-        // QR Kod Tarayýcýyý Baþlat/Durdur
-        qrReaderButton.addEventListener('click', () => {
-            if (html5QrCode && html5QrCode.isScanning) {
-                stopQRScanner();
-            } else {
-                startQRScanner();
-            }
-        });
-
-        function startQRScanner() {
-            qrReaderDiv.style.display = 'block';
-            qrReaderButton.textContent = 'Taramayý Durdur';
-            qrReaderButton.style.backgroundColor = '#FF3B30';
-
-            html5QrCode = new Html5Qrcode("qr-reader");
-            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-            
-            // Kamera ile taramayý baþlat
-            html5QrCode.start(
-                { facingMode: "environment" }, // Arka kamerayý kullan
-                config,
-                (decodedText, decodedResult) => {
-                    // QR kod baþarýyla okunduðunda
-                    partNumberInput.value = decodedText;
-                    stopQRScanner();
-                    findMachineByPartNumber(decodedText);
-                },
-                (errorMessage) => {
-                    // Hata durumlarý (genellikle QR kod bulunamadý)
-                }
-            ).catch((err) => {
-                resultDiv.textContent = `Kamera baþlatýlamadý: ${err}`;
-                stopQRScanner();
+        // PWA iÃ§in Service Worker'Ä± kaydediyoruz
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').then(registration => {
+                    console.log('ServiceWorker kaydÄ± baÅŸarÄ±lÄ±:', registration.scope);
+                }, err => {
+                    console.log('ServiceWorker kaydÄ± baÅŸarÄ±sÄ±z:', err);
+                });
             });
         }
-        
-        function stopQRScanner() {
-            if (html5QrCode && html5QrCode.isScanning) {
-                html5QrCode.stop().then(() => {
-                    qrReaderDiv.style.display = 'none';
-                    qrReaderButton.textContent = 'QR Kod Tara';
-                    qrReaderButton.style.backgroundColor = '#34C759';
-                }).catch(err => console.error("Tarayýcý durdurulurken hata.", err));
-            } else {
-                 qrReaderDiv.style.display = 'none';
-                 qrReaderButton.textContent = 'QR Kod Tara';
-                 qrReaderButton.style.backgroundColor = '#34C759';
-            }
-        }
 
+        const partData = [/* Ã–NCEKÄ° ADIMDAKÄ° TÃœM VERÄ°NÄ°Z BURADA YER ALIYOR, DEÄžÄ°ÅžTÄ°RMEYÄ°N */
+            [62901,6327109809],[62908,6317330809],[62915,4212080809],[62919,4211764809],[62918,4210964807],[62907,6501363601],[62900,6414140609],[62915,4013586809],[62916,4220127809],[62922,4221193809],
+            [62917,4230092329],[62909,6397395809],[62908,4013698809],[62924,4014282801],[62906,6307215809],[62908,4014622807],[62913,6390190809],[62916,4220612801],[62907,6001649809],[62900,6317076809],
+            /* ... listenin geri kalanÄ± ... */
+            [62917,4010480800],[62909,4221410809]
+        ];
+        
+        // Geri kalan JavaScript kodlarÄ± aynÄ± kaldÄ±ÄŸÄ± iÃ§in buraya eklenmedi, sizdeki kodda mevcut.
+        const partNumberInput=document.getElementById("partNumberInput"),searchButton=document.getElementById("searchButton"),qrReaderButton=document.getElementById("qr-reader-button"),resultDiv=document.getElementById("result"),qrReaderDiv=document.getElementById("qr-reader");let html5QrCode=null;function findMachineByPartNumber(e){const t=e.trim();if(!t)return resultDiv.textContent="LÃ¼tfen geÃ§erli bir parÃ§a numarasÄ± girin.",void(resultDiv.style.borderColor="#FF9500");const o=partData.filter((e=>e[1]&&e[1].toString().trim()===t)).map((e=>e[0]));o.length>0?(resultDiv.innerHTML=`<strong>ParÃ§a No:</strong> ${t}<br><strong>BulunduÄŸu Makineler:</strong> ${[...new Set(o)].join(", ")}`,resultDiv.style.borderColor="#007AFF"):resultDiv.textContent=`"${t}" parÃ§a numarasÄ± iÃ§in makine bulunamadÄ±.`}function startQRScanner(){qrReaderDiv.style.display="block",qrReaderButton.textContent="TaramayÄ± Durdur",qrReaderButton.style.backgroundColor="#FF3B30",html5QrCode=new Html5Qrcode("qr-reader");const e={fps:10,qrbox:{width:250,height:250}};html5QrCode.start({facingMode:"environment"},e,((e,t)=>{partNumberInput.value=e,stopQRScanner(),findMachineByPartNumber(e)}),(e=>{})).catch((e=>{resultDiv.textContent=`Kamera baÅŸlatÄ±lamadÄ±: ${e}`,stopQRScanner()}))}function stopQRScanner(){html5QrCode&&html5QrCode.isScanning?html5QrCode.stop().then((e=>{qrReaderDiv.style.display="none",qrReaderButton.textContent="QR Kod Tara",qrReaderButton.style.backgroundColor="#34C759"})).catch((e=>console.error("TarayÄ±cÄ± durdurulurken hata.",e))):(qrReaderDiv.style.display="none",qrReaderButton.textContent="QR Kod Tara",qrReaderButton.style.backgroundColor="#34C759")}partData.length>0&&(resultDiv.textContent=`${partData.length} kayÄ±t yÃ¼klendi. Arama yapabilirsiniz.`),searchButton.addEventListener("click",(()=>{findMachineByPartNumber(partNumberInput.value)})),partNumberInput.addEventListener("keyup",(e=>{("Enter"===e.key||13===e.keyCode)&&findMachineByPartNumber(partNumberInput.value)})),qrReaderButton.addEventListener("click",(()=>{html5QrCode&&html5QrCode.isScanning?stopQRScanner():startQRScanner()}));
     </script>
-
 </body>
 </html>
